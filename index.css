@@ -6,9 +6,21 @@ body {
     font-family: sans-serif;
 }
 
+h1 {
+    border-bottom: solid black thin;
+    font-size: 14pt;
+}
+h2 {
+    font-size: 12pt;
+    margin-bottom: 0.2em;
+}
+
 #controls {
     margin-right: 2em;
-    margin-top: 0.67em;
+}
+#controls h1 {
+    font-variant: small-caps;
+    text-align: center;
 }
 #controls th {
     white-space: nowrap;
@@ -23,17 +35,13 @@ body {
     width: 100%;
     resize: none;
 }
+#controls p {
+    font-size: 10pt;
+    max-width: 305px;
+}
 
 #results {
     width: 50%;
-}
-#results h1 {
-    border-bottom: solid black thin;
-    font-size: 14pt;
-}
-#results h2 {
-    font-size: 12pt;
-    margin-bottom: 0.2em;
 }
 #results .conflictScore {
     font-size: 10pt;
