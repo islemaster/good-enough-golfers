@@ -1,0 +1,54 @@
+body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: flex-start;
+    font-family: sans-serif;
+}
+
+#controls {
+    margin-right: 2em;
+    margin-top: 0.67em;
+}
+#controls th {
+    white-space: nowrap;
+    text-align: right;
+}
+#controls .sliderLabel {
+    width: 2em;
+    text-align: center;
+    overflow: hidden;
+}
+#controls #playerNames, #controls #forbiddenPairs {
+    width: 100%;
+    resize: none;
+}
+
+#results {
+    width: 50%;
+}
+#results h1 {
+    border-bottom: solid black thin;
+    font-size: 14pt;
+}
+#results h2 {
+    font-size: 12pt;
+    margin-bottom: 0.2em;
+}
+#results .conflictScore {
+    font-size: 10pt;
+    font-weight: normal;
+    float: right;
+}
+#results .groups {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+#results .groups .group {
+    min-width: 120px;
+}
+#results .groups .group ul {
+    margin-top: 0.2em;
+    padding-left: 20px;
+}

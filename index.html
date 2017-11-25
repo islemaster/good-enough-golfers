@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Good-Enough Golfers</title>
+    <link rel="stylesheet" href="index.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
+    <script src="lib/geneticSolver.js" type="text/javascript"></script>
+    <script src="index.js" type="text/javascript"></script>
+</head>
+<body>
+    <div id="controls">
+        <table>
+            <tr>
+                <th>Number of groups</th>
+                <td class="sliderLabel" id="groupsLabel"}>0</td>
+                <td>
+                    <input id="groupsSlider" type="range" min="1" max="20" step="1" value="5"/>
+                </td>
+            </tr>
+            <tr>
+                <th>People per group</th>
+                <td class="sliderLabel" id="ofSizeLabel"}>0</td>
+                <td>
+                    <input id="ofSizeSlider" type="range" min="2" max="8" step="1" value="4"/>
+                </td>
+            </tr>
+            <tr>
+                <th>Number of rounds</th>
+                <td class="sliderLabel" id="forRoundsLabel"}>0</td>
+                <td>
+                    <input id="forRoundsSlider" type="range" min="1" max="20" step="1" value="7"/>
+                </td>
+            </tr>
+        </table>
+        <div>
+            <div>
+                <strong>Player Names</strong>
+            </div>
+            <div>
+                <textarea id="playerNames" rows="21">
+Alleson
+Brad
+Charlie
+Danielle
+Elle
+Fredric
+George
+Harriet
+Ivan
+Jenny
+Karen
+Laura
+Mona
+Nathan
+Olive
+Penelope
+Rachel
+Stan
+Tom
+Walt
+</textarea>
+            </div>
+        </div>
+        <div>
+            <div>
+                <strong>Never allow these pairs</strong>
+            </div>
+            <div>
+                <textarea id="forbiddenPairs" rows="6">
+Alleson,Brad
+Alleson,Danielle
+Brad,Danielle
+</textarea>
+            </div>
+        </div>
+    </div>
+    <div id="results">
+
+    </div>
+</body>
+</html>
