@@ -7,7 +7,7 @@ let groups = 0
 let ofSize = 0
 let forRounds = 0
 let playerNames = []
-let forbiddenPairs = []
+let forbiddenPairs = Immutable.Set()
 
 let lastResults
 
@@ -31,12 +31,12 @@ function init() {
   controls.groupsSlider.onchange = onParametersChanged
   controls.ofSizeSlider.onchange = onParametersChanged
   controls.forRoundsSlider.onchange = onParametersChanged
-  controls.playerNames.onkeyup = onPlayerNamesChanged
+  controls.playerNames.onkeyup = onPlayerNamesKeyUp
   controls.playerNames.onchange = onPlayerNamesChanged
   controls.forbiddenPairs.onchange = onForbiddenPairsChanged
 
-  onPlayerNamesChanged()
-  onForbiddenPairsChanged()
+  playerNames = readPlayerNames()
+  forbiddenPairs = readForbiddenPairs(playerNames)
   onSliderMoved()
   onParametersChanged()
 }
@@ -81,25 +81,70 @@ function onParametersChanged() {
   },0)
 }
 
-function onPlayerNamesChanged() {
-  playerNames = controls.playerNames.value
+function readPlayerNames() {
+  return controls.playerNames.value
     .split('\n')
     .map(name => name.trim())
+}
+
+function onPlayerNamesKeyUp() {
+  playerNames = readPlayerNames()
   renderResults()
 }
 
+function onPlayerNamesChanged() {
+  playerNames = readPlayerNames()
+  const newForbiddenPairs = readForbiddenPairs(playerNames)
+  if (!forbiddenPairs.equals(newForbiddenPairs)) {
+    forbiddenPairs = newForbiddenPairs
+    onParametersChanged()
+  } else {
+    renderResults()
+  }
+}
+
 function onForbiddenPairsChanged() {
-  forbiddenPairs = controls.forbiddenPairs.value
+  forbiddenPairs = readForbiddenPairs(playerNames)
+  onParametersChanged()
+}
+
+/**
+ * Given the current playerNames and the value of the forbiddenPairs input field,
+ * recomputes the cached set of forbiddenPairs by index.
+ * @param {Array<string>} playerNames
+ * @return {Immutable.Set<Immutable.Set<number>>}
+ */
+function readForbiddenPairs(playerNames) {
+  return controls.forbiddenPairs.value
     .split('\n')
     .map(stringPair =>
       stringPair
         .split(',')
-        .map(name =>
-          playerNames.indexOf(name.trim())
-        )
+        .map(name =>name.trim())
     )
-    .filter(pair => pair.length == 2 && pair.every(index => index >= 0))
-  onParametersChanged()
+    .filter(pair => pair.length === 2) // Drop lines that aren't pairs
+    .reduce((memo, [leftName, rightName]) => {
+      const leftIndices = indicesOf(leftName, playerNames)
+      const rightIndices = indicesOf(rightName, playerNames)
+      for (const leftIndex of leftIndices) {
+        for (const rightIndex of rightIndices) {
+          if (leftIndex !== rightIndex) {
+            memo = memo.add(Immutable.Set([leftIndex, rightIndex]))
+          }
+        }
+      }
+      return memo
+    }, Immutable.Set())
+}
+
+function indicesOf(needle, haystack) {
+  const indices = []
+  let nextIndex = -1
+  do {
+    nextIndex = haystack.indexOf(needle, nextIndex + 1)
+    if (nextIndex > -1) indices.push(nextIndex)
+  } while (nextIndex > -1)
+  return indices
 }
 
 function renderResults() {
