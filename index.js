@@ -56,14 +56,16 @@ function disableControls() {
   controls.groupsSlider.disabled = true
   controls.ofSizeSlider.disabled = true
   controls.forRoundsSlider.disabled = true
-  controls.playerNames.disabeld = true
+  controls.playerNames.disabled = true
+  controls.forbiddenPairs.disabled = true
 }
 
 function enableControls() {
   controls.groupsSlider.disabled = false
   controls.ofSizeSlider.disabled = false
   controls.forRoundsSlider.disabled = false
-  controls.playerNames.disabeld = false
+  controls.playerNames.disabled = false
+  controls.forbiddenPairs.disabled = false
 }
 
 // This happens when a slider's value is changed and the slider
