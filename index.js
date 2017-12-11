@@ -45,7 +45,9 @@ function init() {
 function onResults(e) {
   lastResults = e.data
   renderResults()
-  enableControls()
+  if (lastResults.done) {
+    enableControls()
+  }
 }
 
 function onSliderMoved() {
