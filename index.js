@@ -1,5 +1,3 @@
-// Get geneticSolver from the document
-
 let controlsDiv, resultsDiv
 let controls = {}
 
@@ -10,8 +8,11 @@ let playerNames = []
 let forbiddenPairs = Immutable.Set()
 
 let lastResults
+const myWorker = new Worker('lib/worker.js');
 
 function init() {
+  myWorker.addEventListener('message', onResults, false);
+
   controlsDiv = document.getElementById('controls')
   resultsDiv = document.getElementById('results')
 
@@ -39,6 +40,12 @@ function init() {
   forbiddenPairs = readForbiddenPairs(playerNames)
   onSliderMoved()
   onParametersChanged()
+}
+
+function onResults(e) {
+  lastResults = e.data
+  renderResults()
+  enableControls()
 }
 
 function onSliderMoved() {
@@ -74,11 +81,7 @@ function onParametersChanged() {
   lastResults = null;
   renderResults()
   disableControls()
-  setTimeout(() => {
-    lastResults = geneticSolver(groups, ofSize, forRounds, forbiddenPairs)
-    renderResults()
-    enableControls()
-  },0)
+  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS()})
 }
 
 function readPlayerNames() {
