@@ -60,3 +60,15 @@ h2 {
     margin-top: 0.2em;
     padding-left: 20px;
 }
+
+input[type=range]::-moz-range-track {
+  height: 5px;
+  background: #ddd;
+  border: none;
+  border-radius: 3px;
+}
+
+input[type=range]:focus::-moz-range-track {
+  background: #ccc;
+}
+
