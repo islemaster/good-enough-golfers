@@ -16,6 +16,7 @@ function init() {
   controlsDiv = document.getElementById('controls')
   resultsDiv = document.getElementById('results')
 
+  controls.recomputeButton = controlsDiv.querySelector('#recomputeButton')
   controls.groupsLabel = controlsDiv.querySelector('#groupsLabel')
   controls.groupsSlider = controlsDiv.querySelector('#groupsSlider')
   controls.ofSizeLabel = controlsDiv.querySelector('#ofSizeLabel')
@@ -26,12 +27,10 @@ function init() {
   controls.forbiddenPairs = controlsDiv.querySelector('#forbiddenPairs')
 
   // User input controls
+  controls.recomputeButton.onclick = recomputeResults;
   controls.groupsSlider.oninput = onSliderMoved
   controls.ofSizeSlider.oninput = onSliderMoved
   controls.forRoundsSlider.oninput = onSliderMoved
-  controls.groupsSlider.onchange = onParametersChanged
-  controls.ofSizeSlider.onchange = onParametersChanged
-  controls.forRoundsSlider.onchange = onParametersChanged
   controls.playerNames.onkeyup = onPlayerNamesKeyUp
   controls.playerNames.onchange = onPlayerNamesChanged
   controls.forbiddenPairs.onchange = onForbiddenPairsChanged
@@ -39,7 +38,7 @@ function init() {
   playerNames = readPlayerNames()
   forbiddenPairs = readForbiddenPairs(playerNames)
   onSliderMoved()
-  onParametersChanged()
+  recomputeResults()
 }
 
 function onResults(e) {
@@ -48,6 +47,13 @@ function onResults(e) {
   if (lastResults.done) {
     enableControls()
   }
+}
+
+function recomputeResults() {
+  lastResults = null;
+  renderResults()
+  disableControls()
+  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS()})
 }
 
 function onSliderMoved() {
@@ -62,28 +68,27 @@ function onSliderMoved() {
 }
 
 function disableControls() {
+  controls.recomputeButton.disabled = true
   controls.groupsSlider.disabled = true
   controls.ofSizeSlider.disabled = true
   controls.forRoundsSlider.disabled = true
   controls.playerNames.disabled = true
   controls.forbiddenPairs.disabled = true
+  
+  // Show spinner
+  controls.recomputeButton.innerHTML = '&nbsp;<span class="spinner"></span>'
 }
 
 function enableControls() {
+  controls.recomputeButton.disabled = false
   controls.groupsSlider.disabled = false
   controls.ofSizeSlider.disabled = false
   controls.forRoundsSlider.disabled = false
   controls.playerNames.disabled = false
   controls.forbiddenPairs.disabled = false
-}
-
-// This happens when a slider's value is changed and the slider
-// is released, after onSliderMoved
-function onParametersChanged() {
-  lastResults = null;
-  renderResults()
-  disableControls()
-  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS()})
+  
+  // Hide spinner
+  controls.recomputeButton.innerHTML = 'Recompute!'
 }
 
 function readPlayerNames() {
@@ -99,18 +104,11 @@ function onPlayerNamesKeyUp() {
 
 function onPlayerNamesChanged() {
   playerNames = readPlayerNames()
-  const newForbiddenPairs = readForbiddenPairs(playerNames)
-  if (!forbiddenPairs.equals(newForbiddenPairs)) {
-    forbiddenPairs = newForbiddenPairs
-    onParametersChanged()
-  } else {
-    renderResults()
-  }
+  renderResults()
 }
 
 function onForbiddenPairsChanged() {
   forbiddenPairs = readForbiddenPairs(playerNames)
-  onParametersChanged()
 }
 
 /**

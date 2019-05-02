@@ -22,6 +22,9 @@ h2 {
     font-variant: small-caps;
     text-align: center;
 }
+#controls button {
+    width: 100%;
+}
 #controls th {
     white-space: nowrap;
     text-align: right;
