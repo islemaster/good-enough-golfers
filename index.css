@@ -72,3 +72,32 @@ input[type=range]:focus::-moz-range-track {
   background: #ccc;
 }
 
+/*
+CSS-only loading spinner
+source: https://stephanwagner.me/only-css-loading-spinner
+*/
+
+@keyframes spinner {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
+.spinner {
+  position: relative;
+}
+ 
+.spinner:before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  margin-left: -8px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  border-top-color: #000;
+  animation: spinner .6s linear infinite;
+}
