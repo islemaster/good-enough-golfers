@@ -7,6 +7,7 @@ let forRounds = 0
 let playerNames = []
 let forbiddenPairs = Immutable.Set()
 
+let startTime;
 let lastResults
 const myWorker = new Worker('lib/worker.js');
 
@@ -50,6 +51,7 @@ function onResults(e) {
 }
 
 function recomputeResults() {
+  startTime = Date.now();
   lastResults = null;
   renderResults()
   disableControls()
@@ -150,48 +152,110 @@ function indicesOf(needle, haystack) {
   return indices
 }
 
-function renderResults() {
-  if (!lastResults) {
-    resultsDiv.innerHTML = 'Thinking...'
-    return
+function playerName(i) {
+  return playerNames[i] ? playerNames[i] : `Player ${i+1}`
+}
+
+function downloadCsv() {
+  // Pivot results into a table that's easier to work with
+  const roundNames = lastResults.rounds.map((_, i) => `Round ${i + 1}`)
+  const playerCount = lastResults.rounds.length * lastResults.rounds[0][0].length
+  
+  // Stub out a row for each player
+  const players = []
+  for (let i = 0; i < playerCount; i++) {
+    players.push([playerName(i)])
   }
-  resultsDiv.innerHTML = ''
-  lastResults.rounds.forEach((round, roundIndex) => {
-    const roundDiv = document.createElement('div')
-    roundDiv.classList.add('round')
-
-    const header = document.createElement('h1')
-    header.textContent = `Round ${roundIndex+1}`
-    const conflictScore = document.createElement('div')
-    conflictScore.classList.add('conflictScore')
-    conflictScore.textContent = `Conflict score: ${lastResults.roundScores[roundIndex]}`
-    header.appendChild(conflictScore)
-
-    const groups = document.createElement('div')
-    groups.classList.add('groups')
-
-    round.forEach((group, groupIndex) => {
-      const groupDiv = document.createElement('div')
-      groupDiv.classList.add('group')
-      const groupName = document.createElement('h2')
-      groupName.textContent = `Group ${groupIndex + 1}`
-      groupDiv.appendChild(groupName)
-
-      const members = document.createElement('ul')
-      group.sort((a, b) => parseInt(a) < parseInt(b) ? -1 : 1).forEach(personNumber => {
-        const member = document.createElement('li')
-        member.textContent = playerNames[personNumber] ? playerNames[personNumber] : `Player ${personNumber+1}`
-        members.appendChild(member)
+  
+  // Fill in assigned groups
+  lastResults.rounds.forEach((round) => {
+    round.forEach((group, j) => {
+      group.forEach(playerIndex => {
+        players[playerIndex].push(`Group ${j + 1}`)
       })
-      groupDiv.appendChild(members)
-
-      groups.appendChild(groupDiv)
     })
-
-    roundDiv.appendChild(header)
-    roundDiv.appendChild(groups)
-    resultsDiv.appendChild(roundDiv)
   })
+  
+  // Build table
+  const rows = [
+    ['', ...roundNames],
+    ...players
+  ]
+  // For debugging: console.table(rows);
+  
+  let csvContent = "data:text/csv;charset=utf-8," 
+    + rows.map(e => e.join(",")).join("\n");
+  
+  const encodedUri = encodeURI(csvContent)
+  const link = document.createElement("a")
+  link.setAttribute("href", encodedUri)
+  link.setAttribute("download", "golfer_solution.csv")
+  document.body.appendChild(link)
+  link.click()
+}
+
+function renderResults() {
+  resultsDiv.innerHTML = ''
+  if (lastResults) {
+    lastResults.rounds.forEach((round, roundIndex) => {
+      const roundDiv = document.createElement('div')
+      roundDiv.classList.add('round')
+  
+      const header = document.createElement('h1')
+      header.textContent = `Round ${roundIndex+1}`
+      const conflictScore = document.createElement('div')
+      conflictScore.classList.add('conflictScore')
+      conflictScore.textContent = `Conflict score: ${lastResults.roundScores[roundIndex]}`
+      header.appendChild(conflictScore)
+  
+      const groups = document.createElement('div')
+      groups.classList.add('groups')
+  
+      round.forEach((group, groupIndex) => {
+        const groupDiv = document.createElement('div')
+        groupDiv.classList.add('group')
+        const groupName = document.createElement('h2')
+        groupName.textContent = `Group ${groupIndex + 1}`
+        groupDiv.appendChild(groupName)
+  
+        const members = document.createElement('ul')
+        group.sort((a, b) => parseInt(a) < parseInt(b) ? -1 : 1).forEach(personNumber => {
+          const member = document.createElement('li')
+          member.textContent = playerName(personNumber)
+          members.appendChild(member)
+        })
+        groupDiv.appendChild(members)
+  
+        groups.appendChild(groupDiv)
+      })
+  
+      roundDiv.appendChild(header)
+      roundDiv.appendChild(groups)
+      resultsDiv.appendChild(roundDiv)
+    })
+    
+    if (lastResults.done) {
+      // Summary div - total time and CSV download
+      const summaryDiv = document.createElement('div')
+      summaryDiv.style.borderTop = 'solid #aaaaaa thin'
+      summaryDiv.style.padding = '7px 0'
+      const csvButton = document.createElement('button')
+      csvButton.type = 'button'
+      csvButton.appendChild(document.createTextNode('Download CSV'))
+      csvButton.onclick = downloadCsv
+      const elapsedSecs = Math.round((Date.now() - startTime) / 100) / 10
+      const elapsedTime = document.createElement('span')
+      elapsedTime.style.margin = '0 1em'
+      elapsedTime.style.fontStyle = 'italic'
+      elapsedTime.style.fontSize = 'smaller'
+      elapsedTime.textContent = `Computed in ${elapsedSecs} seconds.`
+      summaryDiv.appendChild(csvButton)
+      summaryDiv.appendChild(elapsedTime)
+      resultsDiv.appendChild(summaryDiv)
+    } else {
+      resultsDiv.appendChild(document.createTextNode('Thinking...'));
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init)
