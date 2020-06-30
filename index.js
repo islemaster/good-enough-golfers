@@ -159,7 +159,7 @@ function playerName(i) {
 function downloadCsv() {
   // Pivot results into a table that's easier to work with
   const roundNames = lastResults.rounds.map((_, i) => `Round ${i + 1}`)
-  const playerCount = lastResults.rounds.length * lastResults.rounds[0][0].length
+  const playerCount = lastResults.rounds[0].length * lastResults.rounds[0][0].length
   
   // Stub out a row for each player
   const players = []
