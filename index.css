@@ -34,7 +34,7 @@ h2 {
     text-align: center;
     overflow: hidden;
 }
-#controls #playerNames, #controls #forbiddenPairs {
+#controls #playerNames, #controls #forbiddenPairs, #controls #discouragedGroups {
     width: 100%;
     resize: none;
 }

@@ -1,16 +1,67 @@
+// Good Enough Golfers
+// Brad Buchanan, 2017
+// MIT License (see ./LICENSE)
+//
+// Good-Enough Golfers is a near-solver for a class of scheduling
+// problems including the [Social Golfer Problem][1] and
+// [Kirkman's Schoolgirl Problem][2]. The goal is to schedule g x p
+// players into g groups of size p for w weeks such that no two
+// players meet more than once.
+//
+// [1]: http://mathworld.wolfram.com/SocialGolferProblem.html
+// [2]: http://mathworld.wolfram.com/KirkmansSchoolgirlProblem.html
+//
+// Real solutions to these problems can be extremely slow, but
+// approximations are fast and often good enough for real-world
+// purposes.  Good-Enough Golfers uses a genetic algorithm to
+// generate near-solutions to this class of problems, and has the
+// ability to consider additional weighted constriants, making it
+// useful for real-world situations such as assigning students to
+// discussion groups.
+//
+// Besides index.html itself, this file is the entry point for the
+// application and is a good place to start to understand the flow
+// of control. However, it does not contain the actual solver. See
+// lib/geneticSolver.js if you want to jump to the actual algorithm.
+//
+// We begin by declaring and initializing some page-global variables.
+//
+// These are references to the inputs column and the outputs column,
+// and an object to organize references to individual controls, so
+// that working with the DOM is more readable later.
 let controlsDiv, resultsDiv
 let controls = {}
 
+// These variables hold the state of the input controls, which are
+// also the parameters we will pass into the solver.
 let groups = 0
 let ofSize = 0
 let forRounds = 0
 let playerNames = []
 let forbiddenPairs = Immutable.Set()
+let discouragedGroups = Immutable.Set()
 
-let startTime;
+// Each time we kick off the solver we will mark the time, so that
+// we can eaily report the time required to compute the solution.
+let startTime
+
+// This variable holds the last result returned by the solver,
 let lastResults
+
+// Next we launch a web worker which is responsible for the slow job
+// of actually computing a solution.
+//
+// Web workers are a simple way to do work in a background thread.
+// This gets the solver work out of the UI thread (this one) and
+// keeps the interface feeling responsive while a solution is being
+// computed.
+//
+// See https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
 const myWorker = new Worker('lib/worker.js');
 
+// The init() function is called after the DOM is loaded. It prepares
+// the application by setting up event handlers and an initial state
+// and calling for an initial solution.
 function init() {
   myWorker.addEventListener('message', onResults, false);
 
@@ -26,6 +77,7 @@ function init() {
   controls.forRoundsSlider = controlsDiv.querySelector('#forRoundsSlider')
   controls.playerNames = controlsDiv.querySelector('#playerNames')
   controls.forbiddenPairs = controlsDiv.querySelector('#forbiddenPairs')
+  controls.discouragedGroups = controlsDiv.querySelector('#discouragedGroups')
 
   // User input controls
   controls.recomputeButton.onclick = recomputeResults;
@@ -35,9 +87,10 @@ function init() {
   controls.playerNames.onkeyup = onPlayerNamesKeyUp
   controls.playerNames.onchange = onPlayerNamesChanged
   controls.forbiddenPairs.onchange = onForbiddenPairsChanged
+  controls.discouragedGroups.onchange = onDiscouragedGroupsChanged
 
   playerNames = readPlayerNames()
-  forbiddenPairs = readForbiddenPairs(playerNames)
+  readConstraints(playerNames)
   onSliderMoved()
   recomputeResults()
 }
@@ -55,7 +108,7 @@ function recomputeResults() {
   lastResults = null;
   renderResults()
   disableControls()
-  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS()})
+  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS(), discouragedGroups: discouragedGroups.toJS()})
 }
 
 function onSliderMoved() {
@@ -76,6 +129,7 @@ function disableControls() {
   controls.forRoundsSlider.disabled = true
   controls.playerNames.disabled = true
   controls.forbiddenPairs.disabled = true
+  controls.discouragedGroups.disabled = true
   
   // Show spinner
   controls.recomputeButton.innerHTML = '&nbsp;<span class="spinner"></span>'
@@ -88,6 +142,7 @@ function enableControls() {
   controls.forRoundsSlider.disabled = false
   controls.playerNames.disabled = false
   controls.forbiddenPairs.disabled = false
+  controls.discouragedGroups.disabled = false
   
   // Hide spinner
   controls.recomputeButton.innerHTML = 'Recompute!'
@@ -110,35 +165,49 @@ function onPlayerNamesChanged() {
 }
 
 function onForbiddenPairsChanged() {
-  forbiddenPairs = readForbiddenPairs(playerNames)
+  forbiddenPairs = readGroupConstraintFromControl(controls.forbiddenPairs, playerNames)
+}
+
+function onDiscouragedGroupsChanged() {
+  discouragedGroups = readGroupConstraintFromControl(controls.discouragedGroups, playerNames)
+}
+
+// This function reads the forbidden groups and discouraged groups
+// from the DOM and writes the global state variables accordingly,
+// using playerIndices instead of names.
+function readConstraints(playerNames) {
+  forbiddenPairs = readGroupConstraintFromControl(controls.forbiddenPairs, playerNames)
+  discouragedGroups = readGroupConstraintFromControl(controls.discouragedGroups, playerNames)
 }
 
 /**
- * Given the current playerNames and the value of the forbiddenPairs input field,
- * recomputes the cached set of forbiddenPairs by index.
- * @param {Array<string>} playerNames
- * @return {Immutable.Set<Immutable.Set<number>>}
+ * Given a textarea containing multiple comma-separated lists of player names,
+ * where the lists are separated by newlines, returns a set of sets of player
+ * ids suitable for passing as a contstraint to the solver.
+ * Names not found in the provided playerNames list are ignored.
+ * @param {HTMLTextAreaElement} control
+ * @param {Array<string>} playerNames 
+ * @returns {Immutable.Set<Immutable.Set<number>>}
  */
-function readForbiddenPairs(playerNames) {
-  return controls.forbiddenPairs.value
+function readGroupConstraintFromControl(control, playerNames) {
+  return control.value
     .split('\n')
-    .map(stringPair =>
-      stringPair
+    .map(playerNameList =>
+      playerNameList
         .split(',')
-        .map(name =>name.trim())
-    )
-    .filter(pair => pair.length === 2) // Drop lines that aren't pairs
-    .reduce((memo, [leftName, rightName]) => {
-      const leftIndices = indicesOf(leftName, playerNames)
-      const rightIndices = indicesOf(rightName, playerNames)
-      for (const leftIndex of leftIndices) {
-        for (const rightIndex of rightIndices) {
-          if (leftIndex !== rightIndex) {
-            memo = memo.add(Immutable.Set([leftIndex, rightIndex]))
-          }
+        .map(name => name.trim()))
+    // Drop lines that aren't groups
+    .filter(group => group.length >= 2)
+    // Convert player names to indices
+    .reduce((memo, group) => {
+      let groupSet = Immutable.Set()
+      for (const playerName of group) {
+        for (const index of indicesOf(playerName, playerNames)) {
+          groupSet = groupSet.add(index)
         }
       }
-      return memo
+      // Ignore single-member groups, since they don't make useful constraints.
+      return groupSet.size >= 2 ? memo.add(groupSet) : memo;
     }, Immutable.Set())
 }
 
