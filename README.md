@@ -33,3 +33,7 @@ So, for low values, it represents the number of pairs that have been grouped tog
 The key advantage of the exponential behavior is that makes an even distribution of conflicts among players more favorable than putting one pair together over many rounds, which is especially useful in unsolvable situations.  You can check this on a small scale with two groups of three players over four rounds - this heuristic nearly guarantees that no pair golfs together more than twice, even though conflicts are inevitable.
 
 Pairs entered in the "Never allow these pairs" box begin with a cost of Infinity, outweighing any cost computed by the algorithm.
+
+## Credits
+
+The favicon is a modification of golf.svg from https://www.mapbox.com/maki-icons/, licensed CC0.
