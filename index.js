@@ -95,16 +95,28 @@ function init() {
   controls.forbiddenPairs.onchange = onForbiddenPairsChanged
   controls.discouragedGroups.onchange = onDiscouragedGroupsChanged
 
+  try {
+    loadStateFromLocalStorage()
+  } catch {
+    console.info('Failed to load previous state');
+  }
+
   playerNames = readPlayerNames()
   readConstraints(playerNames)
   onSliderMoved()
-  recomputeResults()
+
+  if (lastResults) {
+    renderResults()
+  } else {
+    recomputeResults()
+  }
 }
 
 function onResults(e) {
   lastResults = e.data
   renderResults()
   if (lastResults.done) {
+    saveStateToLocalStorage()
     enableControls()
   }
 }
@@ -115,6 +127,42 @@ function recomputeResults() {
   renderResults()
   disableControls()
   myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS(), discouragedGroups: discouragedGroups.toJS()})
+}
+
+// Every time we finish computing results we save the solution and and the
+// input parameters that produced it to local storage. Whenever the user
+// returns to the page we restore the latest solution. This would be helpful
+// to teachers that need an updated configuration for the same class.
+function saveStateToLocalStorage() {
+  localStorage.setItem('appState', JSON.stringify({
+    groups,
+    ofSize,
+    forRounds,
+    playerNames,
+    forbiddenPairs: forbiddenPairs.toJS(),
+    discouragedGroups: discouragedGroups.toJS(),
+    lastResults
+  }))
+}
+
+// When we load state on page load, we pull state from local storage and
+// (mostly) write the state directly to the page controls. Then the normal
+// initialization process will pick up the state from the controls.
+// The one exception is that we load lastResults directly into the relevant
+// variable, because it doesn't have a corresponding control on the page.
+// This method will throw if a past state is not found in local storage or
+// if we fail to deserialize it for some reason.
+function loadStateFromLocalStorage() {
+  const state = JSON.parse(localStorage.getItem('appState'))
+  if (!state) throw new Error('Failed to load stored state')
+
+  controls.groupsSlider.value = state.groups
+  controls.ofSizeSlider.value = state.ofSize
+  controls.forRoundsSlider.value = state.forRounds
+  controls.playerNames.value = state.playerNames.join("\n")
+  controls.forbiddenPairs.value = state.forbiddenPairs.map(x => x.map(i => state.playerNames[i]).join(",")).join("\n")
+  controls.discouragedGroups.value = state.discouragedGroups.map(x => x.map(i => state.playerNames[i]).join(",")).join("\n")
+  lastResults = state.lastResults
 }
 
 function onSliderMoved() {
@@ -336,12 +384,18 @@ function renderResults() {
       csvButton.type = 'button'
       csvButton.appendChild(document.createTextNode('Download CSV'))
       csvButton.onclick = downloadCsv
-      const elapsedSecs = Math.round((Date.now() - startTime) / 100) / 10
+      
       const elapsedTime = document.createElement('span')
       elapsedTime.style.margin = '0 1em'
       elapsedTime.style.fontStyle = 'italic'
       elapsedTime.style.fontSize = 'smaller'
-      elapsedTime.textContent = `Computed in ${elapsedSecs} seconds.`
+      if (startTime) {
+        const elapsedSecs = Math.round((Date.now() - startTime) / 100) / 10
+        elapsedTime.textContent = `Computed in ${elapsedSecs} seconds.`
+      } else {
+        elapsedTime.textContent = `Loaded from local storage.`
+      }
+      
       summaryDiv.appendChild(csvButton)
       summaryDiv.appendChild(elapsedTime)
       resultsDiv.appendChild(summaryDiv)
