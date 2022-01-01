@@ -378,15 +378,21 @@ function renderResults() {
     if (lastResults.done) {
       // Summary div - total time and CSV download
       const summaryDiv = document.createElement('div')
+      summaryDiv.classList.add('resultsSummary');
       summaryDiv.style.borderTop = 'solid #aaaaaa thin'
       summaryDiv.style.padding = '7px 0'
+
       const csvButton = document.createElement('button')
       csvButton.type = 'button'
       csvButton.appendChild(document.createTextNode('Download CSV'))
       csvButton.onclick = downloadCsv
+
+      const printButton = document.createElement('button')
+      printButton.type = 'button'
+      printButton.appendChild(document.createTextNode('Print Results'))
+      printButton.onclick = () => window.print()
       
       const elapsedTime = document.createElement('span')
-      elapsedTime.style.margin = '0 1em'
       elapsedTime.style.fontStyle = 'italic'
       elapsedTime.style.fontSize = 'smaller'
       if (startTime) {
@@ -396,8 +402,9 @@ function renderResults() {
         elapsedTime.textContent = `Loaded from local storage.`
       }
       
-      summaryDiv.appendChild(csvButton)
       summaryDiv.appendChild(elapsedTime)
+      summaryDiv.appendChild(csvButton)
+      summaryDiv.appendChild(printButton)
       resultsDiv.appendChild(summaryDiv)
     } else {
       resultsDiv.appendChild(document.createTextNode('Thinking...'));

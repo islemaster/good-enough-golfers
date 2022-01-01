@@ -68,6 +68,11 @@ h2 {
     padding-left: 20px;
 }
 
+.resultsSummary button {
+    float: right;
+    margin-left: 1em;
+}
+
 input[type=range]::-moz-range-track {
   height: 5px;
   background: #ddd;
@@ -125,4 +130,20 @@ source: https://stephanwagner.me/only-css-loading-spinner
   border: 2px solid #ccc;
   border-top-color: #000;
   animation: spinner .6s linear infinite;
+}
+
+/*
+Print mode: Something you could hand out to students.
+- Full-width results
+- Hide controls
+- Hide conflict scores
+- Hide results footer (timing and export controls)
+- Avoid splitting round results across multiple pages
+*/
+@media print {
+  #results { width: unset; }
+  #controls { display: none; }
+  .conflictScore { display: none; }
+  .resultsSummary { display: none; }
+  .round { break-inside: avoid; }
 }
