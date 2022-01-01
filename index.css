@@ -18,6 +18,9 @@ h2 {
 #controls {
     margin-right: 2em;
 }
+#controls > div {
+    position: relative;
+}
 #controls h1 {
     font-variant: small-caps;
     text-align: center;
@@ -36,6 +39,7 @@ h2 {
 }
 #controls #playerNames, #controls #forbiddenPairs, #controls #discouragedGroups {
     width: 100%;
+    box-sizing: border-box;
     resize: none;
 }
 #controls p {
@@ -73,6 +77,24 @@ input[type=range]::-moz-range-track {
 
 input[type=range]:focus::-moz-range-track {
   background: #ccc;
+}
+
+#hide-help-link {
+    display: none;
+}
+
+.help-text {
+    display: none;
+    z-index: 10;
+    position: absolute;
+    box-sizing: border-box;
+    left: 100%;
+    margin-left: 4px;
+    width: 425px;
+    background-color: white;
+    border: #666 solid thin;
+    padding: 1em;
+    font-size: smaller;
 }
 
 /*

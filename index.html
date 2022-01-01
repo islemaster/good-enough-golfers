@@ -20,6 +20,15 @@
 <body>
     <div id="controls">
         <h1>Good-Enough Golfers</h1>
+        <div>
+            <div class="help-text">
+                Click the "Recompute" button to get a new solution.
+                <br />Customize group size, number of groups and number of
+                rounds with the sliders.
+                <br />Solutions with more rounds and larger groups take longer
+                to compute.
+            </div>
+        </div>
         <button type="button" id="recomputeButton">Recompute!</button>
         <table>
             <tr>
@@ -47,6 +56,20 @@
         <div>
             <div>
                 <strong>Player Names</strong>
+            </div>
+            <div class="help-text">
+                Player names can be provided for convenience.
+                <br />If player names are omitted, players will be numbered.
+                <br />Editing player names will update the current solution in
+                real-time; you don't need to click "Recompute."
+                <br />&nbsp;
+                <br />If two players have the same name, additional constraints
+                (below) will apply to both of them.
+                <br />&nbsp;
+                <br />Tip: To produce mostly-even groups with an uneven number
+                of players, create players named <tt>[Empty]</tt> to round out
+                your roster, and add an <tt>[Empty],[Empty]</tt> constraint
+                in the next box.
             </div>
             <div>
                 <textarea id="playerNames" rows="21">
@@ -77,6 +100,12 @@ Tom
             <div>
                 <strong>Never allow these pairs</strong>
             </div>
+            <div class="help-text">
+                Players grouped in this box are never grouped by the solver
+                unless absolutely necessary.
+                <br />Comma-separate names within a group.
+                <br />Put groups on separate lines.
+            </div>
             <div>
                 <textarea id="forbiddenPairs" rows="6">
 Brad, Danielle
@@ -88,10 +117,29 @@ Brad, Danielle
             <div>
                 <strong>Prefer splitting these groups</strong>
             </div>
+            <div class="help-text">
+                Similar to above, but lower priority.
+                The solver avoids grouping players if they're already
+                grouped here, but reducing repeat encounters can take
+                priority in later rounds.
+                <br />Tip: You can encourage the solver to gender-balance
+                groups by listing all players of one gender in a group here.
+            </div>
             <div>
                 <textarea id="discouragedGroups" rows="6">
 Brad,Ivan,Mona,Stan
 </textarea>
+            </div>
+        </div>
+        <div>
+            <div class="help-text">
+                The <strong>conflict score</strong> is a representation of how
+                far the solution is from perfect - lower is better.
+                <br />The <strong>Download CSV</strong> button provides a pivot
+                view of the solution that makes it easier see the sequence of
+                groups for a given player.
+                <br />&nbsp;
+                <br /><a href="javascript:hideHelp()">Close help.</a>
             </div>
         </div>
         <p>
@@ -107,9 +155,12 @@ Brad,Ivan,Mona,Stan
             often good enough for real-world purposes.
         </p>
         <p>
-            <a href="http://bradleycbuchanan.com">Brad Buchanan</a>, 2017
+            <a href="http://bradleycbuchanan.com">B Buchanan</a>, 2017
             -
             <a href="https://github.com/islemaster/good-enough-golfers">Source on GitHub</a>
+            -
+            <a id="show-help-link" href="javascript:showHelp()">Help</a>
+            <a id="hide-help-link" href="javascript:hideHelp()">Close Help</a>
         </p>
     </div>
     <div id="results">

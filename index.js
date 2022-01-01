@@ -31,6 +31,8 @@
 // that working with the DOM is more readable later.
 let controlsDiv, resultsDiv
 let controls = {}
+// Also references for the help text
+let helpDivs, showHelpLink, hideHelpLink
 
 // These variables hold the state of the input controls, which are
 // also the parameters we will pass into the solver.
@@ -67,6 +69,10 @@ function init() {
 
   controlsDiv = document.getElementById('controls')
   resultsDiv = document.getElementById('results')
+  helpDivs = document.querySelectorAll('.help-text')
+
+  showHelpLink = document.getElementById("show-help-link")
+  hideHelpLink = document.getElementById("hide-help-link")
 
   controls.recomputeButton = controlsDiv.querySelector('#recomputeButton')
   controls.groupsLabel = controlsDiv.querySelector('#groupsLabel')
@@ -170,6 +176,24 @@ function onForbiddenPairsChanged() {
 
 function onDiscouragedGroupsChanged() {
   discouragedGroups = readGroupConstraintFromControl(controls.discouragedGroups, playerNames)
+}
+
+function showHelp() {
+  resultsDiv.style.opacity = "0.4"
+  showHelpLink.style.display = "none"
+  hideHelpLink.style.display = "inline"
+  for (const div of helpDivs) {
+    div.style.display = 'block'
+  }
+}
+
+function hideHelp() {
+  resultsDiv.style.opacity = "1"
+  showHelpLink.style.display = "inline"
+  hideHelpLink.style.display = "none"
+  for (const div of helpDivs) {
+    div.style.display = 'none'
+  }
 }
 
 // This function reads the forbidden groups and discouraged groups
