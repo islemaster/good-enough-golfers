@@ -8,6 +8,8 @@ than once.
 
 Real solutions to these problems can be extremely slow, but approximations are fast and often good enough for real-world purposes.
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A8GO0PW)
+
 ## History
 
 I originally threw this together over a Thanksgiving weekend because my Dad (a professor) posed the following problem:
