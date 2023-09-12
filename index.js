@@ -75,11 +75,11 @@ function init() {
   hideHelpLink = document.getElementById("hide-help-link")
 
   controls.recomputeButton = controlsDiv.querySelector('#recomputeButton')
-  controls.groupsLabel = controlsDiv.querySelector('#groupsLabel')
+  controls.groupsBox = controlsDiv.querySelector('#groupsBox')
   controls.groupsSlider = controlsDiv.querySelector('#groupsSlider')
-  controls.ofSizeLabel = controlsDiv.querySelector('#ofSizeLabel')
+  controls.ofSizeBox = controlsDiv.querySelector('#ofSizeBox')
   controls.ofSizeSlider = controlsDiv.querySelector('#ofSizeSlider')
-  controls.forRoundsLabel = controlsDiv.querySelector('#forRoundsLabel')
+  controls.forRoundsBox = controlsDiv.querySelector('#forRoundsBox')
   controls.forRoundsSlider = controlsDiv.querySelector('#forRoundsSlider')
   controls.playerNames = controlsDiv.querySelector('#playerNames')
   controls.forbiddenPairs = controlsDiv.querySelector('#forbiddenPairs')
@@ -90,6 +90,9 @@ function init() {
   controls.groupsSlider.oninput = onSliderMoved
   controls.ofSizeSlider.oninput = onSliderMoved
   controls.forRoundsSlider.oninput = onSliderMoved
+  controls.groupsBox.oninput = onSliderLabelEdited
+  controls.ofSizeBox.oninput = onSliderLabelEdited
+  controls.forRoundsBox.oninput = onSliderLabelEdited
   controls.playerNames.onkeyup = onPlayerNamesKeyUp
   controls.playerNames.onchange = onPlayerNamesChanged
   controls.forbiddenPairs.onchange = onForbiddenPairsChanged
@@ -103,7 +106,7 @@ function init() {
 
   playerNames = readPlayerNames()
   readConstraints(playerNames)
-  onSliderMoved()
+  onSliderLabelEdited()
 
   if (lastResults) {
     renderResults()
@@ -156,9 +159,9 @@ function loadStateFromLocalStorage() {
   const state = JSON.parse(localStorage.getItem('appState'))
   if (!state) throw new Error('Failed to load stored state')
 
-  controls.groupsSlider.value = state.groups
-  controls.ofSizeSlider.value = state.ofSize
-  controls.forRoundsSlider.value = state.forRounds
+  controls.groupsBox.value = state.groups
+  controls.ofSizeBox.value = state.ofSize
+  controls.forRoundsBox.value = state.forRounds
   controls.playerNames.value = state.playerNames.join("\n")
   controls.forbiddenPairs.value = state.forbiddenPairs.map(x => x.map(i => state.playerNames[i]).join(",")).join("\n")
   controls.discouragedGroups.value = state.discouragedGroups.map(x => x.map(i => state.playerNames[i]).join(",")).join("\n")
@@ -171,9 +174,23 @@ function onSliderMoved() {
   forRounds = parseInt(controls.forRoundsSlider.value, 10)
 
   // Update labels
-  controls.groupsLabel.textContent = groups
-  controls.ofSizeLabel.textContent = ofSize
-  controls.forRoundsLabel.textContent = forRounds
+  controls.groupsBox.value = groups
+  controls.ofSizeBox.value = ofSize
+  controls.forRoundsBox.value = forRounds
+}
+
+function onSliderLabelEdited() {
+  groups = Math.min(999, Math.abs(parseInt(controls.groupsBox.value, 10)));
+  ofSize = Math.min(999, Math.abs(parseInt(controls.ofSizeBox.value, 10)));
+  forRounds = Math.min(999, Math.abs(parseInt(controls.forRoundsBox.value, 10)));
+
+  controls.groupsSlider.max = Math.max(groups, controls.groupsSlider.max);
+  controls.ofSizeSlider.max = Math.max(ofSize, controls.ofSizeSlider.max);
+  controls.forRoundsSlider.max = Math.max(forRounds, controls.forRoundsSlider.max);
+  
+  controls.groupsSlider.value = groups
+  controls.ofSizeSlider.value = Math.min(controls.ofSizeSlider.max, ofSize);
+  controls.forRoundsSlider.value = Math.min(controls.forRoundsSlider.max, forRounds);
 }
 
 function disableControls() {

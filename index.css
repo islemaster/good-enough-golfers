@@ -37,6 +37,13 @@ h2 {
     text-align: center;
     overflow: hidden;
 }
+#controls .sliderLabel input {
+  width: 2em;
+  font-size: 12pt;
+  text-align: center;
+  overflow: hidden;
+  border: solid #999 thin;
+}
 #controls #playerNames, #controls #forbiddenPairs, #controls #discouragedGroups {
     width: 100%;
     box-sizing: border-box;
