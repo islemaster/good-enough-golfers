@@ -418,7 +418,46 @@ function renderResults() {
       } else {
         elapsedTime.textContent = `Loaded from local storage.`
       }
+
+      const coverage = document.createElement('div')
+      coverage.style.fontStyle = 'italic'
+      coverage.style.fontSize = 'smaller'
+      // 2 = 1
+      // 3 = 3
+      // 4 = 6
+      // 5 = 10
+      const playerCount = lastResults.weights.length;
+      const totalPairs = playerCount * (playerCount - 1) / 2;
+      let pairsMeetingAtLeastOnce = 0;
+      let pairsMeetingMoreThanOnce = 0;
+      let playersMeetingEveryone = 0;
+      let percentsOfPlayersMet = [];
+      for (let i = 1; i < playerCount; i++) {
+        for (let j = i + 1; j < playerCount; j++) {
+          if (lastResults.weights[i][j] > 0) {
+            pairsMeetingAtLeastOnce++;
+          }
+          if (lastResults.weights[i][j] > 1) {
+            pairsMeetingMoreThanOnce++;
+          }
+        }
+        if (lastResults.weights[i].every((weight, j) => i == j || weight > 0)) {
+          playersMeetingEveryone++;
+        }
+        percentsOfPlayersMet.push(lastResults.weights[i].reduce((m, weight, j) => m + (i == j ? 0 : weight > 0 ? 1 : 0)) / (playerCount - 1));
+      }
+      percentsOfPlayersMet.sort();
+      const medianPercentOfPlayersMet = playerCount % 2 == 0 ?
+        ((percentsOfPlayersMet[playerCount/2-1] + percentsOfPlayersMet[playerCount/2]) / 2) :
+        percentsOfPlayersMet[Math.floor(playerCount / 2)];
+      coverage.textContent = `
+      ${Math.round(1000 * pairsMeetingAtLeastOnce / totalPairs)/10}% of pairs met at least once.
+      ${Math.round(1000 * pairsMeetingMoreThanOnce / totalPairs)/10}% of pairs met more than once.
+      ${Math.round(1000 * playersMeetingEveryone / playerCount)/10}% of players met everyone.
+      The median player met ${Math.round(1000 * medianPercentOfPlayersMet)/10}% of other players.
+      `
       
+      summaryDiv.appendChild(coverage)
       summaryDiv.appendChild(elapsedTime)
       summaryDiv.appendChild(csvButton)
       summaryDiv.appendChild(printButton)
