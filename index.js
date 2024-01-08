@@ -129,7 +129,7 @@ function recomputeResults() {
   lastResults = null;
   renderResults()
   disableControls()
-  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS(), discouragedGroups: discouragedGroups.toJS()})
+  myWorker.postMessage({groups, ofSize, forRounds, withFacilitators: true, forbiddenPairs: forbiddenPairs.toJS(), discouragedGroups: discouragedGroups.toJS()})
 }
 
 // Every time we finish computing results we save the solution and and the
