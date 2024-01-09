@@ -39,6 +39,7 @@ let helpDivs, showHelpLink, hideHelpLink
 let groups = 0
 let ofSize = 0
 let forRounds = 0
+let withGroupLeaders = false
 let playerNames = []
 let forbiddenPairs = Immutable.Set()
 let discouragedGroups = Immutable.Set()
@@ -81,6 +82,7 @@ function init() {
   controls.ofSizeSlider = controlsDiv.querySelector('#ofSizeSlider')
   controls.forRoundsBox = controlsDiv.querySelector('#forRoundsBox')
   controls.forRoundsSlider = controlsDiv.querySelector('#forRoundsSlider')
+  controls.withGroupLeadersBox = controlsDiv.querySelector('#withGroupLeadersBox')
   controls.playerNames = controlsDiv.querySelector('#playerNames')
   controls.forbiddenPairs = controlsDiv.querySelector('#forbiddenPairs')
   controls.discouragedGroups = controlsDiv.querySelector('#discouragedGroups')
@@ -90,6 +92,7 @@ function init() {
   controls.groupsSlider.oninput = onSliderMoved
   controls.ofSizeSlider.oninput = onSliderMoved
   controls.forRoundsSlider.oninput = onSliderMoved
+  controls.withGroupLeadersBox.onchange = onWithGroupLeadersChanged
   controls.groupsBox.oninput = onSliderLabelEdited
   controls.ofSizeBox.oninput = onSliderLabelEdited
   controls.forRoundsBox.oninput = onSliderLabelEdited
@@ -100,13 +103,14 @@ function init() {
 
   try {
     loadStateFromLocalStorage()
-  } catch {
+  } catch (err) {
     console.info('Failed to load previous state');
   }
 
   playerNames = readPlayerNames()
   readConstraints(playerNames)
   onSliderLabelEdited()
+  withGroupLeaders = !!controls.withGroupLeadersBox.checked
 
   if (lastResults) {
     renderResults()
@@ -129,7 +133,7 @@ function recomputeResults() {
   lastResults = null;
   renderResults()
   disableControls()
-  myWorker.postMessage({groups, ofSize, forRounds, forbiddenPairs: forbiddenPairs.toJS(), discouragedGroups: discouragedGroups.toJS()})
+  myWorker.postMessage({groups, ofSize, forRounds, withGroupLeaders, forbiddenPairs: forbiddenPairs.toJS(), discouragedGroups: discouragedGroups.toJS()})
 }
 
 // Every time we finish computing results we save the solution and and the
@@ -141,6 +145,7 @@ function saveStateToLocalStorage() {
     groups,
     ofSize,
     forRounds,
+    withGroupLeaders: !!withGroupLeaders,
     playerNames,
     forbiddenPairs: forbiddenPairs.toJS(),
     discouragedGroups: discouragedGroups.toJS(),
@@ -162,6 +167,7 @@ function loadStateFromLocalStorage() {
   controls.groupsBox.value = state.groups
   controls.ofSizeBox.value = state.ofSize
   controls.forRoundsBox.value = state.forRounds
+  controls.withGroupLeadersBox.checked = !!state.withGroupLeaders
   controls.playerNames.value = state.playerNames.join("\n")
   controls.forbiddenPairs.value = state.forbiddenPairs.map(x => x.map(i => state.playerNames[i]).join(",")).join("\n")
   controls.discouragedGroups.value = state.discouragedGroups.map(x => x.map(i => state.playerNames[i]).join(",")).join("\n")
@@ -193,11 +199,16 @@ function onSliderLabelEdited() {
   controls.forRoundsSlider.value = Math.min(controls.forRoundsSlider.max, forRounds);
 }
 
+function onWithGroupLeadersChanged() {
+  withGroupLeaders = controls.withGroupLeadersBox.checked
+}
+
 function disableControls() {
   controls.recomputeButton.disabled = true
   controls.groupsSlider.disabled = true
   controls.ofSizeSlider.disabled = true
   controls.forRoundsSlider.disabled = true
+  controls.withGroupLeadersBox.disabled = true;
   controls.playerNames.disabled = true
   controls.forbiddenPairs.disabled = true
   controls.discouragedGroups.disabled = true
@@ -211,6 +222,7 @@ function enableControls() {
   controls.groupsSlider.disabled = false
   controls.ofSizeSlider.disabled = false
   controls.forRoundsSlider.disabled = false
+  controls.withGroupLeadersBox.disabled = false
   controls.playerNames.disabled = false
   controls.forbiddenPairs.disabled = false
   controls.discouragedGroups.disabled = false

@@ -18,6 +18,8 @@
                 rounds with the sliders.
                 <br />Solutions with more rounds and larger groups take longer
                 to compute.
+                <br />"Use Group Leaders?" keeps the first <em>N</em> players
+                with their respective groups.
             </div>
         </div>
         <button type="button" id="recomputeButton">Recompute!</button>
@@ -48,6 +50,13 @@
                 <td>
                     <input id="forRoundsSlider" type="range" min="1" max="20" step="1" value="5"/>
                 </td>
+            </tr>
+            <tr>
+              <th>Use group leaders?</th>
+              <td class="sliderLabel">
+                <input id="withGroupLeadersBox" type="checkbox" />
+              </td>
+              <td>&nbsp;</td>
             </tr>
         </table>
         <div>
