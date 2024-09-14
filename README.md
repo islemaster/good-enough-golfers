@@ -10,6 +10,22 @@ Real solutions to these problems can be extremely slow, but approximations are f
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A8GO0PW)
 
+## Local setup
+
+Prerequisites: [NPM](https://www.npmjs.com/)
+
+1. Clone the repo and navigate to the project directory
+   ```sh
+   git clone https://github.com/islemaster/good-enough-golfers.git   
+   cd good-enough-golfers
+   ```
+2. Install any dependencies and then start the local web server
+   ```sh
+   npm install
+   npm start
+   ```
+3. Open `http://127.0.0.1:8080/` in your web browser
+
 ## History
 
 I originally threw this together over a Thanksgiving weekend because my Dad (a professor) posed the following problem:
