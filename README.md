@@ -40,6 +40,13 @@ constraints we needed.
 
 ## FAQ
 
+**Where can I find _real_ solutions to this problem?**
+
+For a far more rigorous take on generating balanced breakout groups, I recommend
+you take a look at the work of Alice Miller at University of Glasgow: [Breakout Group Allocation Schedules and Social
+Golfer Problem with Adjacent Group Sizes](https://www.mdpi.com/2073-8994/13/1/13) (2020). Their [online tool](http://breakoutroom.pythonanywhere.com/allocate/#) provides
+zero-conflict solutions for many configurations.
+
 **What does the conflict score indicate?**
 
 The conflict score is a made-up internal score used to compare candidate solutions while running the genetic algorithm.  I've been meaning to replace it with a human-friendly "conflict count" in the UI.  Here's how the score is currently calculated:
