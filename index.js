@@ -244,6 +244,7 @@ function onPlayerNamesKeyUp() {
 
 function onPlayerNamesChanged() {
   playerNames = readPlayerNames()
+  readConstraints(playerNames);
   renderResults()
 }
 
