@@ -852,6 +852,113 @@ input[type="checkbox"]:checked::after {
     background: var(--cream);
 }
 
+/* ===== ATTENDANCE ===== */
+#results .roundActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+}
+
+#results .roundActions button {
+    background: var(--off-white);
+    color: var(--burnt-orange);
+    border: 2px solid var(--border-black);
+    padding: var(--space-4) var(--space-12);
+    font-family: var(--font-family-display);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+#results .roundActions button:hover:not(:disabled) {
+    background: var(--burnt-orange);
+    color: var(--text-on-accent);
+}
+
+#results .roundActions button:disabled,
+.resultsSummary button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+#results .round.attendance-mode {
+    cursor: default;
+    outline: 3px dashed var(--burnt-orange);
+    outline-offset: 3px;
+}
+
+#results .round.attendance-mode .groups .group ul li {
+    cursor: pointer;
+}
+
+#results .round.attendance-mode .groups .group ul li:hover {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+}
+
+#results .groups .group ul li.moved {
+    border-style: dashed;
+    border-color: var(--burnt-orange);
+}
+
+#results .groups .group ul li.moved::after {
+    content: ' \21BB';
+    color: var(--burnt-orange);
+}
+
+#results .roundNote {
+    margin-top: var(--space-12);
+    font-size: var(--font-size-sm);
+    color: var(--chocolate);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+#results .round.attendance-mode > .roundNote:first-of-type {
+    margin-top: 0;
+    margin-bottom: var(--space-12);
+}
+
+#results .nameChip {
+    display: inline-block;
+    padding: 2px var(--space-8);
+    border: 2px solid var(--border-black);
+    background: var(--sand);
+    color: var(--charcoal);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: line-through;
+}
+
+#results button.nameChip {
+    cursor: pointer;
+}
+
+#results button.nameChip:hover {
+    text-decoration: none;
+    background: var(--cream-dark);
+}
+
+#results .round.fullscreen .roundActions,
+#results .round.fullscreen .roundNote {
+    display: none;
+}
+
+.resultsNotice {
+    background: var(--cream-dark);
+    border: 3px solid var(--burnt-orange);
+    padding: var(--space-12) var(--space-16);
+    margin-bottom: var(--space-16);
+    font-size: var(--font-size-sm);
+    color: var(--charcoal);
+}
+
 /* Results Summary */
 .resultsSummary {
     background: var(--sand);

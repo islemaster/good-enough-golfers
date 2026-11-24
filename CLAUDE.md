@@ -30,9 +30,15 @@ The genetic algorithm is the heart of the application:
   3. Running for 30 generations or until a zero-conflict solution is found
 
 - **Constraints Handling**:
-  - `forbiddenPairs`: Pairs seeded with Infinity weight (never grouped unless unavoidable)
+  - `forbiddenPairs`: Pairs seeded with `FORBIDDEN_WEIGHT` (10000, finite so two violations score worse than one)
   - `discouragedGroups`: Pairs seeded with weight 1 (grouped together less preferentially)
   - `withGroupLeaders`: First N players deterministically assigned to their respective groups
+
+- **History and attendance** (`options.history`, `options.absentByRound`): rounds that already happened are kept as-is and only seed the weights; absent players are left out of a round. If there are more players than places, players take turns sitting out (whoever has sat out most plays first).
+
+### Attendance (lib/schedule.js)
+
+Shared, dependency-free helpers loaded by both the page and the worker: weight setup, scoring, and `repairRound` / `applyAttendance`. `lastResults.rounds` is the solver's plan; what's displayed is the plan with `lastResults.absences` applied by `applyAttendance`, which removes absent players and rebalances with the fewest moves. "Replan later rounds" re-runs the solver with the displayed rounds so far as history. Results store a `config` snapshot (including `playerNames`) because groups reference players by list position.
 
 ### Application Flow
 

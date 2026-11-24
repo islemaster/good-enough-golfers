@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="index.css"/>
     <script src="https://cdn.jsdelivr.net/npm/immutable@3.8.2/dist/immutable.min.js"></script>
+    <script src="lib/schedule.js" type="text/javascript"></script>
     <script src="index.js" type="text/javascript"></script>
 </head>
 <body>
@@ -71,8 +72,14 @@
             </div>
             <div class="help-text">
                 Student names can be provided for convenience.
-                <br />Editing student names will update the current solution in
-                real-time; you don't need to click "Recompute."
+                <br />Fixing the spelling of a name updates the current groups
+                straight away. Adding or removing names needs "Recompute."
+                <br />&nbsp;
+                <br /><strong>Absences:</strong> don't delete an absent
+                student's name. Click "Mark absent" on a round, then click
+                their name. The groups rebalance, moving as few people as
+                possible. "Replan later rounds" then re-makes the following
+                rounds based on who actually met whom.
                 <br />&nbsp;
                 <br /><strong>Privacy:</strong> Names are never sent to our
                 servers. All processing happens on your own computer.
